@@ -9,7 +9,7 @@
  *  Copyright © 2014 Alex Malikov
  *
  *  Support for Foscam and Generic MJPEG video streams by k3v0
- *
+ *  Support for Illuminance capability data by DarcRanger
  */
 definition(
     name: "ActiON4",
@@ -85,6 +85,7 @@ def controlThings() {
             input "presence", "capability.presenceSensor", title: "Which Presence?", multiple: true, required: false
             input "temperature", "capability.temperatureMeasurement", title: "Which Temperature?", multiple: true, required: false
             input "humidity", "capability.relativeHumidityMeasurement", title: "Which Hygrometer?", multiple: true, required: false
+            input "illuminance", "capability.illuminanceMeasurement", title: "Which Lux Unit?", multiple: true, required: false
             input "motion", "capability.motionSensor", title: "Which Motion?", multiple: true, required: false
             input "water", "capability.waterSensor", title: "Which Water Sensors?", multiple: true, required: false
             input "battery", "capability.battery", title: "Which Battery Status?", multiple: true, required: false
@@ -306,19 +307,15 @@ def initialize() {
 	subscribe(holiday, "switch.off", handler, [filterEvents: false])
 	subscribe(holiday, "switch", handler, [filterEvents: false])
 	subscribe(holiday, "level", handler, [filterEvents: false])
-    subscribe(switches, "switch", handler, [filterEvents: false])
-    subscribe(dimmers, "level", handler, [filterEvents: false])
+    	subscribe(switches, "switch", handler, [filterEvents: false])
+    	subscribe(dimmers, "level", handler, [filterEvents: false])
 	subscribe(dimmers, "switch", handler, [filterEvents: false])
-    subscribe(locks, "lock", handler, [filterEvents: false])
-    subscribe(contacts, "contact", handler, [filterEvents: false])
-    subscribe(presence, "presence", handler, [filterEvents: false])
-    subscribe(temperature, "temperature", handler, [filterEvents: false])
-    subscribe(humidity, "humidity", handler, [filterEvents: false])
-    subscribe(motion, "motion", handler, [filterEvents: false])
-    subscribe(water, "water", handler, [filterEvents: false])
-    subscribe(battery, "battery", handler, [filterEvents: false])
-    subscribe(energy, "energy", handler, [filterEvents: false])
-    subscribe(power, "power", handler, [filterEvents: false])
+	subscribe(illuminance, "illuminance", handler, [filterEvents: false])
+	subscribe(motion, "motion", handler, [filterEvents: false])
+   	subscribe(water, "water", handler, [filterEvents: false])
+    	subscribe(battery, "battery", handler, [filterEvents: false])
+    	subscribe(energy, "energy", handler, [filterEvents: false])
+    	subscribe(power, "power", handler, [filterEvents: false])
 }
 
 def getURL(path) {
@@ -547,6 +544,7 @@ def allDeviceData() {
 	momentaries?.each{data << getDeviceData(it, "momentary")}
 	contacts?.each{data << getDeviceData(it, "contact")}
 	presence?.each{data << getDeviceData(it, "presence")}
+	illuminance?.each{data << getDeviceData(it, "illuminance")}
 	motion?.each{data << getDeviceData(it, "motion")}
 	camera?.each{data << getDeviceData(it, "camera")}
 	(1..10).each{if (settings["dropcamStreamUrl$it"]) {data << [tile: "video", link: settings["dropcamStreamUrl$it"], title: settings["dropcamStreamT$it"] ?: "Stream $it", i: it]}}
@@ -576,7 +574,7 @@ def link() {render contentType: "text/html", data: """<!DOCTYPE html><html><head
 def customCSS() {
 """
 <style>
-
+.illuminance {background-color: #9B870C} /*mustard*/
 </style>
 """
 }
