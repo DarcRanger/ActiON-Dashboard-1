@@ -13,7 +13,7 @@
  */
 definition(
     name: "ActiON4",
-    namespace: "625alex",
+    namespace: "DRT:625alex",
     author: "Alex Malikov",
     description: "ActiON Dashboard, a SmartThings web client.",
     category: "Convenience",
@@ -476,7 +476,7 @@ def renderTile(data) {
 
 def getDeviceData(device, type) {[tile: "device",  active: isActive(device, type), type: type, device: device.id, name: device.displayName, value: getDeviceValue(device, type), level: getDeviceLevel(device, type), isValue: isValue(device, type)]}
 
-def getDeviceFieldMap() {[lock: "lock", holiday: "switch", "switch": "switch", dimmer: "switch", contact: "contact", presence: "presence", temperature: "temperature", humidity: "humidity", motion: "motion", water: "water", power: "power", energy: "energy", battery: "battery"]}
+def getDeviceFieldMap() {[lock: "lock", holiday: "switch", "switch": "switch", dimmer: "switch", contact: "contact", presence: "presence", temperature: "temperature", humidity: "humidity", illuminance: "illuminance", motion: "motion", water: "water", power: "power", energy: "energy", battery: "battery"]}
 
 def getActiveDeviceMap() {[lock: "unlocked", holiday: "on", "switch": "on", dimmer: "on", contact: "open", presence: "present", motion: "active", water: "wet"]}
 
@@ -494,7 +494,7 @@ def isActive(device, type) {
 }
 
 def getDeviceValue(device, type) {
-	def unitMap = [temperature: "°", humidity: "%", battery: "%", power: "W", energy: "kWh"]
+	def unitMap = [temperature: "°", humidity: "%", battery: "%", power: "W", energy: "kWh", illuminance: " Lux"]
 	def field = getDeviceFieldMap()[type]
 	def value = "n/a"
 	try {
