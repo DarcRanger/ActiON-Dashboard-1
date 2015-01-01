@@ -9,7 +9,7 @@
  *  Copyright © 2014 Alex Malikov
  *
  *  Support for Foscam and Generic MJPEG video streams by k3v0
- *  Support for Illuminance capability data by DarcRanger
+ *  Support for Illuminance, soundLevel and airPressure data by DarcRanger
  */
 definition(
     name: "ActiON4",
@@ -85,7 +85,9 @@ def controlThings() {
             input "presence", "capability.presenceSensor", title: "Which Presence?", multiple: true, required: false
             input "temperature", "capability.temperatureMeasurement", title: "Which Temperature?", multiple: true, required: false
             input "humidity", "capability.relativeHumidityMeasurement", title: "Which Hygrometer?", multiple: true, required: false
-            input "illuminance", "capability.illuminanceMeasurement", title: "Which Lux Unit?", multiple: true, required: false
+            input "illuminance", "capability.illuminanceMeasurement", title: "Which Lux Measurer?", multiple: true, required: false //, options: ["Master", "Kitchen", "Hall of Justice"]
+            input "soundlevel", "capability.sensor", title: "Which Sound Level Measurer?", multiple: true, required: false //, options: ["Master", "Kitchen", "Hall of Justice"]
+			input "airpressure", "capability.sensor", title: "Which AirPressure?", multiple: true, required: false //, options: ["Master", "Kitchen", "Hall of Justice"]
             input "motion", "capability.motionSensor", title: "Which Motion?", multiple: true, required: false
             input "water", "capability.waterSensor", title: "Which Water Sensors?", multiple: true, required: false
             input "battery", "capability.battery", title: "Which Battery Status?", multiple: true, required: false
@@ -307,15 +309,17 @@ def initialize() {
 	subscribe(holiday, "switch.off", handler, [filterEvents: false])
 	subscribe(holiday, "switch", handler, [filterEvents: false])
 	subscribe(holiday, "level", handler, [filterEvents: false])
-    	subscribe(switches, "switch", handler, [filterEvents: false])
-    	subscribe(dimmers, "level", handler, [filterEvents: false])
+    subscribe(switches, "switch", handler, [filterEvents: false])
+    subscribe(dimmers, "level", handler, [filterEvents: false])
 	subscribe(dimmers, "switch", handler, [filterEvents: false])
-	subscribe(illuminance, "illuminance", handler, [filterEvents: false])
+    subscribe(illuminance, "illuminance", handler, [filterEvents: false])
+    subscribe(soundlevel, "soundlevel", handler, [filterEvents: false])
+    subscribe(airpressure, "airpressure", handler, [filterEvents: false])
 	subscribe(motion, "motion", handler, [filterEvents: false])
    	subscribe(water, "water", handler, [filterEvents: false])
-    	subscribe(battery, "battery", handler, [filterEvents: false])
-    	subscribe(energy, "energy", handler, [filterEvents: false])
-    	subscribe(power, "power", handler, [filterEvents: false])
+    subscribe(battery, "battery", handler, [filterEvents: false])
+    subscribe(energy, "energy", handler, [filterEvents: false])
+    subscribe(power, "power", handler, [filterEvents: false])
 }
 
 def getURL(path) {
@@ -476,7 +480,7 @@ def renderTile(data) {
 
 def getDeviceData(device, type) {[tile: "device",  active: isActive(device, type), type: type, device: device.id, name: device.displayName, value: getDeviceValue(device, type), level: getDeviceLevel(device, type), isValue: isValue(device, type)]}
 
-def getDeviceFieldMap() {[lock: "lock", holiday: "switch", "switch": "switch", dimmer: "switch", contact: "contact", presence: "presence", temperature: "temperature", humidity: "humidity", illuminance: "illuminance", motion: "motion", water: "water", power: "power", energy: "energy", battery: "battery"]}
+def getDeviceFieldMap() {[lock: "lock", holiday: "switch", "switch": "switch", dimmer: "switch", contact: "contact", presence: "presence", temperature: "temperature", humidity: "humidity", motion: "motion", "illuminance": "illuminance", water: "water", power: "power", energy: "energy", battery: "battery", "soundlevel": "soundlevel", "airpressure": "airpressure"]}
 
 def getActiveDeviceMap() {[lock: "unlocked", holiday: "on", "switch": "on", dimmer: "on", contact: "open", presence: "present", motion: "active", water: "wet"]}
 
@@ -494,7 +498,7 @@ def isActive(device, type) {
 }
 
 def getDeviceValue(device, type) {
-	def unitMap = [temperature: "°", humidity: "%", battery: "%", power: "W", energy: "kWh", illuminance: " Lux"]
+	def unitMap = [temperature: "°", humidity: "%", battery: "%", power: "W", energy: "kWh", "illuminance": " lux", "soundlevel": " db", "airpressure": " Kpa"]
 	def field = getDeviceFieldMap()[type]
 	def value = "n/a"
 	try {
@@ -545,6 +549,8 @@ def allDeviceData() {
 	contacts?.each{data << getDeviceData(it, "contact")}
 	presence?.each{data << getDeviceData(it, "presence")}
 	illuminance?.each{data << getDeviceData(it, "illuminance")}
+   	soundlevel?.each{data << getDeviceData(it, "soundlevel")}
+	airpressure?.each{data << getDeviceData(it, "airpressure")}
 	motion?.each{data << getDeviceData(it, "motion")}
 	camera?.each{data << getDeviceData(it, "camera")}
 	(1..10).each{if (settings["dropcamStreamUrl$it"]) {data << [tile: "video", link: settings["dropcamStreamUrl$it"], title: settings["dropcamStreamT$it"] ?: "Stream $it", i: it]}}
@@ -574,7 +580,10 @@ def link() {render contentType: "text/html", data: """<!DOCTYPE html><html><head
 def customCSS() {
 """
 <style>
+// add tiny icon for custom tiles.
 .illuminance {background-color: #9B870C} /*mustard*/
+.soundlevel {background-color: #323232 } /*dark gray*/
+.airpressure {background-color: #198af2} /*light blue*/
 </style>
 """
 }
