@@ -580,8 +580,7 @@ def link() {render contentType: "text/html", data: """<!DOCTYPE html><html><head
 def customCSS() {
 """
 <style>
-// add tiny icon for custom tiles.
-.illuminance {background-color: #9B870C} /*mustard*/
+.illuminance {background-color: #9B870C} /*mustard [Add tiny icon for custom tiles.]*/
 .soundlevel {background-color: #323232 } /*dark gray*/
 .airpressure {background-color: #198af2} /*light blue*/
 </style>
